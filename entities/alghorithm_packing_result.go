@@ -1,4 +1,4 @@
-package model
+package entities
 
 type AlgorithmPackingResult struct {
 	AlgorithmID                  int

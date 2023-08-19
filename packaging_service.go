@@ -6,21 +6,21 @@ import (
 	"time"
 
 	algo "github.com/azcov/continer-packing-3d/algorithm"
-	"github.com/azcov/continer-packing-3d/model"
+	"github.com/azcov/continer-packing-3d/entities"
 )
 
-func Pack(containers []model.Container, itemsToPack []*model.Item, algorithmTypeIDs []int) []model.ContainerPackingResult {
-	var result []model.ContainerPackingResult
+func Pack(containers []entities.Container, itemsToPack []*entities.Item, algorithmTypeIDs []int) []entities.ContainerPackingResult {
+	var result []entities.ContainerPackingResult
 	var sync sync.Mutex
 
 	for _, container := range containers {
-		containerPackingResult := model.ContainerPackingResult{ContainerID: container.ID}
+		containerPackingResult := entities.ContainerPackingResult{ContainerID: container.ID}
 
 		for _, algorithmTypeID := range algorithmTypeIDs {
 			algorithm := algo.GetPackingAlgorithmFromTypeID(algorithmTypeID)
 
 			// Clone the item list to avoid interference with parallel updates
-			items := make([]*model.Item, len(itemsToPack))
+			items := make([]*entities.Item, len(itemsToPack))
 			copy(items, itemsToPack)
 
 			start := time.Now()

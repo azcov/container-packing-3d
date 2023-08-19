@@ -1,7 +1,7 @@
 package algo
 
-import "github.com/azcov/continer-packing-3d/model"
+import "github.com/azcov/continer-packing-3d/entities"
 
 type AlgorithmBase interface {
-	Run(container model.Container, items []*model.Item) *model.AlgorithmPackingResult
+	Run(container entities.Container, items []*entities.Item) *entities.AlgorithmPackingResult
 }

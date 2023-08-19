@@ -5,7 +5,7 @@ import (
 	"math"
 	"sort"
 
-	"github.com/azcov/continer-packing-3d/model"
+	"github.com/azcov/continer-packing-3d/entities"
 )
 
 type Layer struct {
@@ -29,10 +29,10 @@ type ScrapPad struct {
 // }
 
 type EB_AFIT struct {
-	itemsToPack        []*model.Item
-	itemsPackedInOrder []*model.Item
+	itemsToPack        []*entities.Item
+	itemsPackedInOrder []*entities.Item
 	layers             []*Layer
-	result             *model.ContainerPackingResult
+	result             *entities.ContainerPackingResult
 
 	scrapfirst *ScrapPad
 	smallestZ  *ScrapPad
@@ -47,7 +47,7 @@ type EB_AFIT struct {
 
 	bboxi           int
 	bestIteration   int
-	bestVariant     model.Orientation
+	bestVariant     int
 	boxi            int
 	cboxi           int
 	layerListLen    int
@@ -118,15 +118,15 @@ type EB_AFIT struct {
 	totalContainerVolume float64
 }
 
-func (e *EB_AFIT) Run(container model.Container, items []*model.Item) *model.AlgorithmPackingResult {
+func (e *EB_AFIT) Run(container entities.Container, items []*entities.Item) *entities.AlgorithmPackingResult {
 	e.Initialize(container, items)
 	e.ExecuteIterations(container)
 	e.Report(container)
 
-	result := model.AlgorithmPackingResult{}
+	result := entities.AlgorithmPackingResult{}
 	result.AlgorithmID = int(EB_AFIT_ID)
 	result.AlgorithmName = "EB-AFIT"
-	result.UnpackedItems = make([]*model.Item, 0)
+	result.UnpackedItems = make([]*entities.Item, 0)
 
 	for i := 1; i <= e.itemsToPackCount; i++ {
 		e.itemsToPack[i].Quantity = 1
@@ -269,7 +269,7 @@ func (e *EB_AFIT) CheckFound() {
 // / <summary>
 // / Executes the packing algorithm variants.
 // / </summary>
-func (e *EB_AFIT) ExecuteIterations(container model.Container) {
+func (e *EB_AFIT) ExecuteIterations(container entities.Container) {
 	var itelayer int
 	var layersIndex int
 	bestVolume := 0.0
@@ -352,7 +352,7 @@ func (e *EB_AFIT) ExecuteIterations(container model.Container) {
 
 			if e.packedVolume > bestVolume && !quit {
 				bestVolume = e.packedVolume
-				e.bestVariant = model.Orientation(containerOrientationVariant)
+				e.bestVariant = containerOrientationVariant
 				e.bestIteration = itelayer
 			}
 
@@ -501,20 +501,20 @@ func (e *EB_AFIT) FindSmallestZ() {
 // / <summary>
 // / Initializes everything.
 // / </summary>
-func (e *EB_AFIT) Initialize(container model.Container, items []*model.Item) {
-	e.itemsToPack = []*model.Item{}
-	e.itemsPackedInOrder = []*model.Item{}
-	e.result = &model.ContainerPackingResult{}
+func (e *EB_AFIT) Initialize(container entities.Container, items []*entities.Item) {
+	e.itemsToPack = []*entities.Item{}
+	e.itemsPackedInOrder = []*entities.Item{}
+	e.result = &entities.ContainerPackingResult{}
 
 	// Add a fake entry at the beginning for 1-based indexing
-	e.itemsToPack = append(e.itemsToPack, &model.Item{})
+	e.itemsToPack = append(e.itemsToPack, &entities.Item{})
 
 	e.layers = make([]*Layer, 0)
 	e.itemsToPackCount = 0
 
 	for _, item := range items {
 		for i := 1; i <= item.Quantity; i++ {
-			newItem := &model.Item{
+			newItem := &entities.Item{
 				ID:       item.ID,
 				Dim1:     item.Dim1,
 				Dim2:     item.Dim2,
@@ -529,7 +529,7 @@ func (e *EB_AFIT) Initialize(container model.Container, items []*model.Item) {
 	}
 
 	// Add another fake entry at the end for 1-based indexing
-	e.itemsToPack = append(e.itemsToPack, &model.Item{})
+	e.itemsToPack = append(e.itemsToPack, &entities.Item{})
 
 	e.totalContainerVolume = container.Length * container.Height * container.Width
 	totalItemVolume := 0.0
@@ -935,7 +935,7 @@ func (e *EB_AFIT) PackLayer() {
 	}
 }
 
-func (e *EB_AFIT) Report(container model.Container) {
+func (e *EB_AFIT) Report(container entities.Container) {
 	e.quit = false
 	var px, py, pz float64
 	log.Printf("%.f", px)

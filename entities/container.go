@@ -1,4 +1,4 @@
-package model
+package entities
 
 type Container struct {
 	ID     int
